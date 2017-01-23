@@ -25,15 +25,18 @@ function SetupDHCP(){
 	ip addr add 192.168.1.1/24 dev $WlanInterface # arbitrary address
 	sysctl net.ipv4.ip_forward=1
 	route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.1.1
+    
+    iptables-restore < ./iptablesAP.rules
+    sleep 1
 
 	iptables -t nat -A PREROUTING -p udp -j DNAT --to $gatewayIp
 	iptables -t nat -A POSTROUTING -o $internetInterface -j MASQUERADE
 	iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 	iptables -A FORWARD -i $WlanInterface -j ACCEPT
 	
-
-    iptables -t nat -I PREROUTING -p tcp -j DNAT --to-destination 192.168.1.1:80
-
+    
+    iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000
+    
 
 	dhcpd -cf ./dhcpd.conf -pf /var/run/dhcpd.pid $WlanInterface
     sleep 1

